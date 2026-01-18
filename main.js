@@ -12,10 +12,14 @@
                 return;
             }
 
-            resultDiv.innerHTML = `<p class="text-muted text-center">Loading...</p>`;
+            resultDiv.innerHTML = `<div class="progress" role="progressbar" aria-label="Success striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        <div id="myProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
+                                    </div>`
+            loadBar()
+            // resultDiv.innerHTML = `<p class="text-muted text-center">Loading...</p>`;
 
             try {
-                const response = await fetch("https://fawa.onrender.com/api/process", { // http://127.0.0.1:5000/api/process
+                const response = await fetch("https://fawa.onrender.com/api/process", { // http://127.0.0.1:5000/api/process or https://fawa.onrender.com/api/process
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ symbol })
@@ -69,4 +73,19 @@
 
         html += `</tbody></table>`;
         resultDiv.innerHTML = html;
+    }
+    function loadBar(){
+        let progress = 0;
+        const progressBar = document.getElementById('myProgress');
+
+        // Increase the progress every 100ms
+        const interval = setInterval(() => {
+            if (progress >= 100) {
+                clearInterval(interval); // stop when full
+            } else {
+                progress += 1; // increase by 1%
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+            }
+        }, 100);
     }

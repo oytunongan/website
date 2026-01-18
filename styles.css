@@ -1,0 +1,8 @@
+.hero-header {
+  position: relative;
+  height: 300px;            /* change height if needed */
+  background-image: url("static/header.jpg");
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
