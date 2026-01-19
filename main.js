@@ -89,3 +89,6 @@
             }
         }, 100);
     }
+    function closeDisclaimer() {
+  document.getElementById("disclaimer").style.display = "none";
+    }
