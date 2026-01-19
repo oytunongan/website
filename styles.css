@@ -88,11 +88,4 @@
   pointer-events: auto;
   transform: translateY(0);
 }
-@media (hover: none) {
-  .hover-menu {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: none;
-  }
-}
+
