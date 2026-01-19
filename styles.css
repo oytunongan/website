@@ -7,17 +7,20 @@
   overflow: hidden;
 }
 .main-articles {
-    position: relative;      /* make pseudo-element relative to main */
-    z-index: 1;              /* content sits above the background */
-    min-height: 150svh;  /* adjust as needed */
+    position: relative;
+    z-index: 1;
     padding: 2rem 0;
+    overflow: hidden;
 }
-
 .main-articles::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: url('static/article.jpg') center/contain no-repeat; /* your background image */
-    filter: blur(3px);        /* adjust blur intensity */
-    z-index: -1;              /* behind content */
+    inset: 0;
+    background-image: url('static/article.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%; /* STRETCH */
+    transform: scale(1.05);
+    filter: blur(3px);
+    z-index: -1;
 }
