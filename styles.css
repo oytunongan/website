@@ -9,7 +9,7 @@
 .main-articles {
     position: relative;      /* make pseudo-element relative to main */
     z-index: 1;              /* content sits above the background */
-    min-height: 150vh;  /* adjust as needed */
+    min-height: 150svh;  /* adjust as needed */
     padding: 2rem 0;
 }
 
