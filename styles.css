@@ -97,21 +97,22 @@
   pointer-events: auto;
   transform: translateY(0);
 }
-.social-icons-vertical {
+.social-icons-horizontal {
     display: flex;
-    flex-direction: column; /* vertical stack */
-    align-items: center; /* center icons horizontally */
-    z-index: 10; /* make sure icons are above background */
+    flex-direction: row; /* horizontal layout */
+    gap: 10px;           /* space between icons */
+    align-items: center;  /* vertically center icons */
+    justify-content: center; /* center icons horizontally in container */
+    z-index: 10;          /* make sure icons are above background */
 }
-
-.social-icons-vertical a {
+.social-icons-horizontal a {
   color: #333; /* icon color */
   margin: 10px 0; /* spacing between icons */
   font-size: 40px; /* larger icons */
   transition: color 0.3s, transform 0.3s;
 }
 
-.social-icons-vertical a:hover {
+.social-icons-horizontal a:hover {
   color: #ff0000; /* hover color (example red for YouTube) */
   transform: scale(1.2); /* slight grow effect */
 }

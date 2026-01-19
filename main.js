@@ -92,3 +92,34 @@
     function closeDisclaimer() {
   document.getElementById("disclaimer").style.display = "none";
     }
+    
+    // CONTACT FORM
+    const form = document.getElementById("contactForm");
+    const alertPlaceholder = document.getElementById("alert-placeholder");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const title = document.getElementById("title").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const message = document.getElementById("message").value.trim();
+
+        try {
+            const response = await fetch("https://fawa.onrender.com/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, email, message })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alertPlaceholder.innerHTML = `<div class="alert alert-success">${data.success}</div>`;
+                form.reset();
+            } else {
+                alertPlaceholder.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            }
+        } catch (err) {
+            alertPlaceholder.innerHTML = `<div class="alert alert-danger">Failed to send message. Try again later.</div>`;
+        }
+    });
