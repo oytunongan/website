@@ -1,29 +1,98 @@
 .hero-header {
   position: relative;
-  height: 150px;            /* change height if needed */
+  height: 100px;            /* change height if needed */
   background-image: url("static/header.jpg");
   background-size: contain;
   background-position: center;
-  overflow: hidden;
+  overflow: visible;
 }
 .main-articles {
     position: relative;
     padding: 2rem 0;
     overflow: hidden;
 }
-
 .bg-layer {
     position: absolute;
     inset: 0;
     background: url('static/article.jpg') center / 100% 100% no-repeat;
-    filter: blur(5px);
+    filter: blur(3px);
     transform: scale(1.1);
     z-index: 0;
 }
-
 /* content always above */
 .main-articles > .container {
     position: relative;
     z-index: 1;
 }
-
+.hover-navbar {
+  position: absolute;   /* inside header */
+  bottom: 0;            /* bottom-left corner */
+  left: 0;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: transparent; /* transparent */
+  z-index: 1000;
+}
+.hover-navbar .navbar-brand {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.menu-trigger {
+  width: 40px;
+  height: 40px;
+  background-color: #000; /* black square */
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px;
+  margin-left: 8px;
+}
+.menu-trigger span {
+  display: block;
+  width: 70%;      /* line width relative to square */
+  height: 3px;
+  background-color: #fff; /* white lines */
+  border-radius: 2px;
+}
+.hover-menu {
+  position: absolute;
+  top: 45px;      /* below the square */
+  left: 0;        /* aligned with square */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.9); /* dark vertical menu */
+  border-radius: 4px;
+  padding: 0.5rem 0;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(-5px);
+  z-index: 9999;   /* <-- make sure menu is on top */
+}
+.hover-menu .nav-link {
+  color: #fff;
+  display: block;
+  padding: 0.5rem 1rem;
+}
+.menu-trigger:hover + .hover-menu,
+.hover-menu:hover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+@media (hover: none) {
+  .hover-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+}
