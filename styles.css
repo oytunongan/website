@@ -207,3 +207,52 @@
     font-weight: bold;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* adds contrast */
 }
+.bg-col {
+    position: relative;
+    color: white;
+    padding: 30px 20px;
+    border-radius: 12px;
+    min-height: 250px;
+    overflow: hidden;
+    text-align: center;
+}
+
+/* Blurred background */
+.bg-col::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    background-size: contain;
+    background-position: center;
+    filter: blur(2px);      /* slightly stronger blur for better blending */
+    transform: scale(1);    /* scale already accounted by top/left + width/height */
+    z-index: 0;
+    border-radius: 12px;
+}
+
+/* Text above background */
+.bg-col > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Specific background images */
+.bg-col1::before { background-image: url("static/art1.jpg"); }
+.bg-col2::before { background-image: url("static/art2.jpg"); }
+.bg-col3::before { background-image: url("static/art3.jpg"); }
+
+/* Initial state: hidden and shifted left */
+.slide-text {
+    opacity: 0;
+    transform: translateX(-100px); /* start 100px left */
+    transition: all 0.8s ease-out;
+}
+
+/* Active state: visible and in place */
+.slide-text.active {
+    opacity: 1;
+    transform: translateX(0);
+}
