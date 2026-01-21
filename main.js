@@ -159,3 +159,59 @@ function closeDisclaimer() {
     const disclaimer = document.getElementById("disclaimer");
     if (disclaimer) disclaimer.style.display = "none";
 }
+
+// ==========================
+// Run Monte Carlo Risk Sim
+// ==========================
+async function runSimulation() {
+    const fileInput = document.getElementById("csvFile");
+    const errorDiv = document.getElementById("error");
+    const resultsDiv = document.getElementById("results");
+    const progressContainer = document.getElementById("progress-container");
+    const progressBar = document.getElementById("myProgress");
+    const plotImg = document.getElementById("plot");
+
+    // Reset errors and previous results
+    errorDiv.textContent = "";
+    plotImg.src = "";
+    resultsDiv.style.display = "block"; // show results section
+    if (progressContainer) progressContainer.style.display = "block"; // show progress bar
+    if (progressBar) {
+        progressBar.style.width = "0%";
+        progressBar.setAttribute("aria-valuenow", 0);
+    }
+
+    if (!fileInput.files.length) {
+        errorDiv.textContent = "Please upload a CSV file.";
+        if (progressContainer) progressContainer.style.display = "none"; // hide bar if no file
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    resultsDiv.innerHTML = `
+        <div class="progress" role="progressbar" aria-label="Loading" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div id="myProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
+        </div>
+    `;
+    loadBar();
+
+    try {
+        const response = await fetch("https://fawa.onrender.com/api/montecarlo", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+
+        // Show the plot
+        if (plotImg) plotImg.src = "data:image/png;base64," + data.plot;
+
+    } catch (err) {
+        clearInterval(interval);
+        errorDiv.textContent = err.message;
+        if (progressContainer) progressContainer.style.display = "none";
+    }
+}
