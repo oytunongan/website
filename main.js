@@ -50,49 +50,41 @@ if (analyzeForm && resultDiv) {
 // ==========================
 // CONTACT FORM SUBMISSION
 // ==========================
-document.getElementById("contactForm").addEventListener("submit", async function(e) {
-    e.preventDefault(); // prevent normal form submission
+const contactForm = document.getElementById("contactForm");
+const alertPlaceholder = document.getElementById("alert-placeholder");
 
-    const title = document.getElementById("title").value;
-    const email = document.getElementById("email").value;
-    const message = document.getElementById("message").value;
+if (contactForm && alertPlaceholder) {
+    contactForm.addEventListener("submit", async function(e) {
+        e.preventDefault(); // prevent normal form submission
 
-    const alertPlaceholder = document.getElementById("alert-placeholder");
-    alertPlaceholder.innerHTML = ""; // clear previous alerts
+        const title = document.getElementById("title").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const message = document.getElementById("message").value.trim();
 
-    try {
-        const response = await fetch("/api/contact", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, email, message })
-        });
+        alertPlaceholder.innerHTML = ""; // clear previous alerts
 
-        const data = await response.json();
+        try {
+            const response = await fetch("https://fawa.onrender.com/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, email, message })
+            });
 
-        if (response.ok) {
-            alertPlaceholder.innerHTML = `
-                <div class="alert alert-success" role="alert">
-                    ${data.success}
-                </div>
-            `;
-            // Optional: clear the form
-            document.getElementById("contactForm").reset();
-        } else {
-            alertPlaceholder.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    ${data.error}
-                </div>
-            `;
+            const data = await response.json();
+
+            if (response.ok) {
+                alertPlaceholder.innerHTML = `<div class="alert alert-success">${data.success}</div>`;
+                contactForm.reset();
+            } else {
+                alertPlaceholder.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            }
+
+        } catch (err) {
+            alertPlaceholder.innerHTML = `<div class="alert alert-danger">Something went wrong. Try again later.</div>`;
+            console.error(err);
         }
-    } catch (err) {
-        alertPlaceholder.innerHTML = `
-            <div class="alert alert-danger" role="alert">
-                Something went wrong. Try again later.
-            </div>
-        `;
-        console.error(err);
-    }
-});
+    });
+}
 
 /* const contactForm = document.getElementById("contactForm");
 const alertPlaceholder = document.getElementById("alert-placeholder");
