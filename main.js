@@ -22,6 +22,7 @@ if (analyzeForm && resultDiv) {
                 <div id="myProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
             </div>
         `;
+
         loadBar();
 
         try {
@@ -49,7 +50,51 @@ if (analyzeForm && resultDiv) {
 // ==========================
 // CONTACT FORM SUBMISSION
 // ==========================
-const contactForm = document.getElementById("contactForm");
+document.getElementById("contactForm").addEventListener("submit", async function(e) {
+    e.preventDefault(); // prevent normal form submission
+
+    const title = document.getElementById("title").value;
+    const email = document.getElementById("email").value;
+    const message = document.getElementById("message").value;
+
+    const alertPlaceholder = document.getElementById("alert-placeholder");
+    alertPlaceholder.innerHTML = ""; // clear previous alerts
+
+    try {
+        const response = await fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, email, message })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alertPlaceholder.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    ${data.success}
+                </div>
+            `;
+            // Optional: clear the form
+            document.getElementById("contactForm").reset();
+        } else {
+            alertPlaceholder.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    ${data.error}
+                </div>
+            `;
+        }
+    } catch (err) {
+        alertPlaceholder.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                Something went wrong. Try again later.
+            </div>
+        `;
+        console.error(err);
+    }
+});
+
+/* const contactForm = document.getElementById("contactForm");
 const alertPlaceholder = document.getElementById("alert-placeholder");
 
 if (contactForm && alertPlaceholder) {
@@ -80,7 +125,7 @@ if (contactForm && alertPlaceholder) {
             alertPlaceholder.innerHTML = `<div class="alert alert-danger">Failed to send message. Try again later.</div>`;
         }
     });
-}
+} */
 
 // ==========================
 // SLIDE TEXT ANIMATION
@@ -167,34 +212,32 @@ async function runSimulation() {
     const fileInput = document.getElementById("csvFile");
     const errorDiv = document.getElementById("error");
     const resultsDiv = document.getElementById("results");
-    const progressContainer = document.getElementById("progress-container");
-    const progressBar = document.getElementById("myProgress");
     const plotImg = document.getElementById("plot");
 
-    // Reset errors and previous results
     errorDiv.textContent = "";
     plotImg.src = "";
-    resultsDiv.style.display = "block"; // show results section
-    if (progressContainer) progressContainer.style.display = "block"; // show progress bar
-    if (progressBar) {
-        progressBar.style.width = "0%";
-        progressBar.setAttribute("aria-valuenow", 0);
-    }
 
     if (!fileInput.files.length) {
         errorDiv.textContent = "Please upload a CSV file.";
-        if (progressContainer) progressContainer.style.display = "none"; // hide bar if no file
         return;
     }
 
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
+    // Insert progress bar dynamically (same pattern as your working form)
     resultsDiv.innerHTML = `
-        <div class="progress" role="progressbar" aria-label="Loading" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div id="myProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
+        <h3>RESULT</h3>
+        <div class="progress" role="progressbar" aria-label="Loading"
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div id="myProgress"
+                 class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                 style="width: 0%">
+            </div>
         </div>
     `;
+
+    // Start animation AFTER element exists
     loadBar();
 
     try {
@@ -206,12 +249,42 @@ async function runSimulation() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error);
 
-        // Show the plot
-        if (plotImg) plotImg.src = "data:image/png;base64," + data.plot;
+        // Replace progress bar with result image
+        resultsDiv.innerHTML = `
+            <h3>RESULT</h3>
+            <img id="plot" class="img-fluid mt-3"
+                 src="data:image/png;base64,${data.plot}">
+        `;
 
     } catch (err) {
-        clearInterval(interval);
         errorDiv.textContent = err.message;
-        if (progressContainer) progressContainer.style.display = "none";
+        resultsDiv.innerHTML = "";
     }
 }
+let preview;
+
+document.querySelectorAll(".card img").forEach(img => {
+  img.addEventListener("mouseenter", e => {
+    preview = document.createElement("div");
+    preview.className = "image-preview";
+    preview.innerHTML = `<img src="${img.src}" alt="">`;
+    document.body.appendChild(preview);
+
+    preview.style.opacity = "1";
+    preview.style.transform = "scale(1)";
+  });
+
+  img.addEventListener("mousemove", e => {
+    if (!preview) return;
+    preview.style.top = e.clientY + 20 + "px";
+    preview.style.left = e.clientX + 20 + "px";
+  });
+
+  img.addEventListener("mouseleave", () => {
+    if (preview) {
+      preview.remove();
+      preview = null;
+    }
+  });
+});
+

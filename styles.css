@@ -256,3 +256,21 @@
     opacity: 1;
     transform: translateX(0);
 }
+/* Preview container */
+.image-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.image-preview img {
+  max-width: 420px;
+  max-height: 300px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  background: #fff;
+}
+
