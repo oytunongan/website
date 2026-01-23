@@ -339,3 +339,77 @@ document.addEventListener("DOMContentLoaded", () => {
     map.on("mouseout", () => map.scrollWheelZoom.disable());
 
 });
+
+// ==========================
+// ACCEPT TERMS AND PRIVACY
+// ==========================
+let targetUrl = null;
+const modal = new bootstrap.Modal(document.getElementById("termsModal"));
+const termsBox = document.getElementById("termsBox");
+const modalContent = document.getElementById("modalContent");
+const checkbox = document.getElementById("acceptTerms");
+const acceptBtn = document.getElementById("acceptBtn");
+
+// Load both Terms and Privacy into modal
+async function loadTermsAndPrivacy() {
+  try {
+    const terms = await fetch("/terms.html").then(r => r.text());
+    const privacy = await fetch("/privacy.html").then(r => r.text());
+
+    modalContent.innerHTML = `
+      <h3>Terms of Service</h3>
+      ${terms}
+      <hr>
+      <h3>Privacy Policy</h3>
+      ${privacy}
+    `;
+  } catch (err) {
+    modalContent.innerHTML = "<p>Failed to load policies. Please try again later.</p>";
+    console.error(err);
+  }
+}
+
+// Show modal when clicking Learn More links if consent not given
+document.querySelectorAll(".learn-more").forEach(link => {
+  link.addEventListener("click", function(e) {
+    if (!localStorage.getItem("termsAccepted")) {
+      e.preventDefault();
+      targetUrl = this.href;
+      modal.show();
+    }
+  });
+});
+
+// Load policies when modal is shown
+document.getElementById("termsModal").addEventListener("show.bs.modal", loadTermsAndPrivacy);
+
+// Enable checkbox only when scrolled to bottom
+termsBox.addEventListener("scroll", () => {
+  const isBottom = termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5;
+  if (isBottom) checkbox.disabled = false;
+});
+
+// Enable Accept button when checkbox checked
+checkbox.addEventListener("change", () => {
+  acceptBtn.disabled = !checkbox.checked;
+});
+
+// Send consent to backend and continue
+acceptBtn.addEventListener("click", async () => {
+  try {
+    await fetch("/api/accept-terms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    localStorage.setItem("termsAccepted", "true");
+    localStorage.setItem("policyVersion", "1.0");
+
+    modal.hide();
+    window.location.href = targetUrl;
+  } catch (err) {
+    alert("Failed to save consent. Please try again.");
+    console.error(err);
+  }
+});
+

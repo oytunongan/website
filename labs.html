@@ -48,7 +48,7 @@
                         <div class="card-body">
                         <h3>Financial Analysis & Stock Valuation</h3>
                         <p>Analyze company performance, evaluate stock value, and make informed investment decisions.</p>
-                        <a href="/finance.html" class="btn">Learn More</a>
+                        <a href="/finance.html" class="btn learn-more">Learn More</a>
                         </div>
                     </div>
 
@@ -58,7 +58,7 @@
                         <div class="card-body">
                         <h3>Monte Carlo Risk Simulation</h3>
                         <p>Quantify and visualize industrial risks to make better operational decisions.</p>
-                        <a href="/montecarlo.html" class="btn">Learn More</a>
+                        <a href="/montecarlo.html" class="btn learn-more">Learn More</a>
                         </div>
                     </div>
 
@@ -68,7 +68,7 @@
                         <div class="card-body">
                         <h3>Optimization of Project Schedule</h3>
                         <p>MS Project schedule optimization automated with VBA macros.</p>
-                        <a href="/error.html" class="btn">Learn More</a>
+                        <a href="/error.html" class="btn learn-more">Learn More</a>
                         </div>
                     </div>
                     </div>
@@ -87,5 +87,37 @@
                 © 2026 Oytun Ongan. All rights reserved.
             </p>
         </footer>
+        <!-- Terms & Privacy Consent Modal -->
+        <div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Before You Continue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Please read the following policies before continuing:</p>
+
+                <div id="termsBox" style="height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                <div id="modalContent">Loading policies...</div>
+                </div>
+
+                <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" id="acceptTerms" disabled>
+                <label class="form-check-label" for="acceptTerms">
+                    I have read and agree to the Terms of Service and Privacy Policy
+                </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="acceptBtn" disabled>Accept & Continue</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
     </body>
 </html>
