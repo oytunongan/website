@@ -279,4 +279,63 @@ document.querySelectorAll(".card img").forEach(img => {
     }
   });
 });
+// ==========================
+// MAP OF EXPERIENCES
+// ==========================
+document.addEventListener("DOMContentLoaded", () => {
 
+    const map = L.map("world-map", {
+        scrollWheelZoom: false,
+        worldCopyJump: true,
+        attributionControl: false
+    }).setView([20, 0], 2);
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+        attribution: "© OpenStreetMap © CARTO"
+    }).addTo(map);
+
+    // Cities you’ve been to
+    const cities = [
+        { project: "QatarGas LNG Expansion Project", name: "Ras Laffan, Qatar", lat: 25.9191, lng: 51.6081 },
+        { project: "AES Maritza East Thermal Power Plant", name: "Galabovo, Bulgaria", lat: 42.1366, lng: 25.8536 },
+        { project: "Ahselkent Residence Project", name: "Almaty, Kazakhstan", lat: 43.2220, lng: 76.8512 },
+        { project: "Temiz Sehir Waste-to-Energy Project", name: "Baku, Azerbaijan", lat: 40.4093, lng: 49.8671 },
+        { project: "Sibur Polymer", name: "Tobolsk, Russia", lat: 58.1998, lng: 68.2533 },
+        { project: "Rusvinyl PVC Project", name: "Nizhny Novgorod, Russia", lat: 56.2965, lng: 43.9361 },
+        { project: "Lukoil VGO Project", name: "Volgograd, Russia", lat: 48.7080, lng: 44.5133 },
+        { project: "NLMK SGOK Pelletizing Plant", name: "Stary Oskol, Russia", lat: 51.2966, lng: 37.8416 },
+        { project: "SOCAR Star Aegean Refinery", name: "Izmir, Turkey", lat: 38.4237, lng: 27.1428 },
+        { project: "Gazprom Amur Gas Processing Plant", name: "Svobodny, Russia", lat: 51.3759, lng: 128.1353 },
+        { project: "Novatek Arctic LNG GBS Project Management", name: "Moscow, Russia", lat: 55.7558, lng: 37.6173 },
+        { project: "Novatek Arctic LNG GBS Project", name: "Murmansk, Russia", lat: 68.9585, lng: 33.0827 },
+        { project: "Yeniköy Kemerköy Thermal Power Plant Rehabilitation", name: "Muğla, Turkey", lat: 37.2153, lng: 28.3636 }
+    ];
+
+    cities.forEach(city => {
+        L.circleMarker([city.lat, city.lng], {
+            radius: 6,
+            fillColor: "#d4af37",
+            color: "#000",
+            weight: 1,
+            fillOpacity: 0.9
+        })
+        .addTo(map)
+        .bindTooltip(
+            `<strong>${city.project}</strong><br>${city.name}`,
+            {
+                permanent: false,
+                direction: "top",
+                offset: [0, -6],
+                opacity: 0.95
+            }
+        );
+    });
+
+    const bounds = cities.map(c => [c.lat, c.lng]);
+    map.fitBounds(bounds, { padding: [40, 40] })
+
+    // 🔍 Zoom on mouse over
+    map.on("mouseover", () => map.scrollWheelZoom.enable());
+    map.on("mouseout", () => map.scrollWheelZoom.disable());
+
+});
