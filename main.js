@@ -397,7 +397,7 @@ checkbox.addEventListener("change", () => {
 // Send consent to backend and continue
 acceptBtn.addEventListener("click", async () => {
   try {
-    await fetch("/api/accept-terms", {
+    await fetch("https://fawa.onrender.com/api/accept-terms", {
       method: "POST",
       headers: { "Content-Type": "application/json" }
     });
