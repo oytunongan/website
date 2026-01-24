@@ -363,6 +363,14 @@ async function loadTermsAndPrivacy() {
       <h3>Privacy Policy</h3>
       ${privacy}
     `;
+
+    // Reset checkbox and button every time modal opens
+    checkbox.checked = false;
+    checkbox.disabled = true;
+    acceptBtn.disabled = true;
+
+    // Scroll to top on modal open
+    termsBox.scrollTop = 0;
   } catch (err) {
     modalContent.innerHTML = "<p>Failed to load policies. Please try again later.</p>";
     console.error(err);
@@ -386,30 +394,36 @@ document.getElementById("termsModal").addEventListener("show.bs.modal", loadTerm
 // Enable checkbox only when scrolled to bottom
 termsBox.addEventListener("scroll", () => {
   const isBottom = termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5;
-  if (isBottom) checkbox.disabled = false;
+  checkbox.disabled = !isBottom;
 });
 
-// Enable Accept button when checkbox checked
+// Enable Accept button when checkbox is checked
 checkbox.addEventListener("change", () => {
   acceptBtn.disabled = !checkbox.checked;
 });
 
-// Send consent to backend and continue
-acceptBtn.addEventListener("click", async () => {
-  try {
-    await fetch("https://fawa.onrender.com/api/accept-terms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
-    });
+// Optimistic UI: Send consent and proceed immediately
+acceptBtn.addEventListener("click", () => {
+  // 1️⃣ Optimistic UI update
+  localStorage.setItem("termsAccepted", "true");
+  localStorage.setItem("policyVersion", "1.0");
+  modal.hide();
 
-    localStorage.setItem("termsAccepted", "true");
-    localStorage.setItem("policyVersion", "1.0");
-
-    modal.hide();
+  // Redirect if user clicked a Learn More link
+  if (targetUrl) {
     window.location.href = targetUrl;
-  } catch (err) {
-    alert("Failed to save consent. Please try again.");
-    console.error(err);
   }
+
+  // 2️⃣ Send backend request asynchronously, errors logged only
+  fetch("https://fawa.onrender.com/api/accept-terms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  }).catch(err => {
+    console.error("Failed to save consent:", err);
+    // Optional: rollback UI or notify user if needed
+    // localStorage.removeItem("termsAccepted");
+    // alert("Failed to save consent. Please try again.");
+  });
 });
+
 
