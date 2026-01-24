@@ -402,28 +402,21 @@ checkbox.addEventListener("change", () => {
   acceptBtn.disabled = !checkbox.checked;
 });
 
-// Optimistic UI: Send consent and proceed immediately
+// Optimistic UI + reliable backend write using sendBeacon
 acceptBtn.addEventListener("click", () => {
   // 1️⃣ Optimistic UI update
   localStorage.setItem("termsAccepted", "true");
   localStorage.setItem("policyVersion", "1.0");
   modal.hide();
 
-  // Redirect if user clicked a Learn More link
-  if (targetUrl) {
-    window.location.href = targetUrl;
-  }
+  // 2️⃣ Send backend request reliably before page unload
+  const url = "https://fawa.onrender.com/api/accept-terms";
+  const data = JSON.stringify({}); // add user info if needed
+  navigator.sendBeacon(url, new Blob([data], { type: "application/json" }));
 
-  // 2️⃣ Send backend request asynchronously, errors logged only
-  fetch("https://fawa.onrender.com/api/accept-terms", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
-  }).catch(err => {
-    console.error("Failed to save consent:", err);
-    // Optional: rollback UI or notify user if needed
-    // localStorage.removeItem("termsAccepted");
-    // alert("Failed to save consent. Please try again.");
-  });
+  // 3️⃣ Redirect immediately
+  if (targetUrl) window.location.href = targetUrl;
 });
+
 
 
