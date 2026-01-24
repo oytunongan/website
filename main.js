@@ -364,12 +364,12 @@ async function loadTermsAndPrivacy() {
       ${privacy}
     `;
 
-    // Reset checkbox and button every time modal opens
+    // Reset checkbox and button each time modal opens
     checkbox.checked = false;
     checkbox.disabled = true;
     acceptBtn.disabled = true;
 
-    // Scroll to top on modal open
+    // Scroll to top
     termsBox.scrollTop = 0;
   } catch (err) {
     modalContent.innerHTML = "<p>Failed to load policies. Please try again later.</p>";
@@ -409,14 +409,16 @@ acceptBtn.addEventListener("click", () => {
   localStorage.setItem("policyVersion", "1.0");
   modal.hide();
 
-  // 2️⃣ Send backend request reliably before page unload
-  const url = "https://fawa.onrender.com/api/accept-terms";
-  const data = JSON.stringify({}); // add user info if needed
-  navigator.sendBeacon(url, new Blob([data], { type: "application/json" }));
+  // 2️⃣ Prepare payload (empty object is fine; backend uses IP/User-Agent)
+  const payload = JSON.stringify({});
 
-  // 3️⃣ Redirect immediately
+  // 3️⃣ Use sendBeacon to POST reliably
+  const url = "https://fawa.onrender.com/api/accept-terms";
+  const blob = new Blob([payload], { type: "application/json" });
+  const sent = navigator.sendBeacon(url, blob);
+
+  if (!sent) console.warn("sendBeacon may not have been sent!");
+
+  // 4️⃣ Redirect immediately
   if (targetUrl) window.location.href = targetUrl;
 });
-
-
-
