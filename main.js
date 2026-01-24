@@ -350,7 +350,7 @@ const modalContent = document.getElementById("modalContent");
 const checkbox = document.getElementById("acceptTerms");
 const acceptBtn = document.getElementById("acceptBtn");
 
-// Load both Terms and Privacy into modal
+// Load Terms & Privacy
 async function loadTermsAndPrivacy() {
   try {
     const terms = await fetch("/terms.html").then(r => r.text());
@@ -364,12 +364,10 @@ async function loadTermsAndPrivacy() {
       ${privacy}
     `;
 
-    // Reset checkbox and button each time modal opens
+    // Reset modal controls
     checkbox.checked = false;
     checkbox.disabled = true;
     acceptBtn.disabled = true;
-
-    // Scroll to top
     termsBox.scrollTop = 0;
   } catch (err) {
     modalContent.innerHTML = "<p>Failed to load policies. Please try again later.</p>";
@@ -377,7 +375,7 @@ async function loadTermsAndPrivacy() {
   }
 }
 
-// Show modal when clicking Learn More links if consent not given
+// Show modal if consent not given
 document.querySelectorAll(".learn-more").forEach(link => {
   link.addEventListener("click", function(e) {
     if (!localStorage.getItem("termsAccepted")) {
@@ -388,13 +386,12 @@ document.querySelectorAll(".learn-more").forEach(link => {
   });
 });
 
-// Load policies when modal is shown
+// Load modal content on show
 document.getElementById("termsModal").addEventListener("show.bs.modal", loadTermsAndPrivacy);
 
 // Enable checkbox only when scrolled to bottom
 termsBox.addEventListener("scroll", () => {
-  const isBottom = termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5;
-  checkbox.disabled = !isBottom;
+  checkbox.disabled = !(termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5);
 });
 
 // Enable Accept button when checkbox is checked
@@ -402,23 +399,37 @@ checkbox.addEventListener("change", () => {
   acceptBtn.disabled = !checkbox.checked;
 });
 
-// Optimistic UI + reliable backend write using sendBeacon
-acceptBtn.addEventListener("click", () => {
-  // 1️⃣ Optimistic UI update
+// Accept terms: Optimistic UI + sendBeacon + fetch fallback
+acceptBtn.addEventListener("click", async () => {
+  // 1️⃣ Optimistic UI
   localStorage.setItem("termsAccepted", "true");
   localStorage.setItem("policyVersion", "1.0");
   modal.hide();
 
-  // 2️⃣ Prepare payload (empty object is fine; backend uses IP/User-Agent)
+  // 2️⃣ Prepare payload
   const payload = JSON.stringify({});
 
-  // 3️⃣ Use sendBeacon to POST reliably
+  // 3️⃣ Attempt sendBeacon
   const url = "https://fawa.onrender.com/api/accept-terms";
   const blob = new Blob([payload], { type: "application/json" });
-  const sent = navigator.sendBeacon(url, blob);
+  const beaconSent = navigator.sendBeacon(url, blob);
 
-  if (!sent) console.warn("sendBeacon may not have been sent!");
+  if (!beaconSent) {
+    // Fallback to fetch (keepalive ensures background delivery)
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true
+      });
+    } catch (err) {
+      console.error("Failed to save consent with fetch fallback:", err);
+    }
+  }
 
-  // 4️⃣ Redirect immediately
-  if (targetUrl) window.location.href = targetUrl;
+  // 4️⃣ Redirect after small delay
+  setTimeout(() => {
+    if (targetUrl) window.location.href = targetUrl;
+  }, 100);
 });
