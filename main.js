@@ -350,7 +350,7 @@ const modalContent = document.getElementById("modalContent");
 const checkbox = document.getElementById("acceptTerms");
 const acceptBtn = document.getElementById("acceptBtn");
 
-// Load Terms & Privacy into modal
+// Load Terms & Privacy
 async function loadTermsAndPrivacy() {
   try {
     const terms = await fetch("/terms.html").then(r => r.text());
@@ -364,7 +364,6 @@ async function loadTermsAndPrivacy() {
       ${privacy}
     `;
 
-    // Reset controls
     checkbox.checked = false;
     checkbox.disabled = true;
     acceptBtn.disabled = true;
@@ -386,10 +385,7 @@ document.querySelectorAll(".learn-more").forEach(link => {
   });
 });
 
-// Load modal content when modal is shown
-document.getElementById("termsModal").addEventListener("show.bs.modal", loadTermsAndPrivacy);
-
-// Enable checkbox only when scrolled to bottom
+// Enable checkbox when scrolled to bottom
 termsBox.addEventListener("scroll", () => {
   checkbox.disabled = !(termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5);
 });
@@ -399,36 +395,27 @@ checkbox.addEventListener("change", () => {
   acceptBtn.disabled = !checkbox.checked;
 });
 
-// Accept Terms button click: Optimistic UI + reliable DB write
+// Accept Terms button click
 acceptBtn.addEventListener("click", async () => {
-  // 1️⃣ Optimistic UI
+  // 1️⃣ Optimistic UI: hide modal and update localStorage
   localStorage.setItem("termsAccepted", "true");
   localStorage.setItem("policyVersion", "1.0");
   modal.hide();
 
-  const url = "https://fawa.onrender.com/api/accept-terms";
-  const payload = JSON.stringify({});
-
-  // 2️⃣ Try sendBeacon first
-  const blob = new Blob([payload], { type: "application/json" });
-  const beaconSent = navigator.sendBeacon(url, blob);
-
-  if (!beaconSent) {
-    // Fallback to fetch if sendBeacon fails
-    try {
-      await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-        keepalive: true
-      });
-    } catch (err) {
-      console.error("Failed to save consent with fetch fallback:", err);
-    }
+  // 2️⃣ Send POST to backend reliably
+  try {
+    // Use fetch with keepalive (works even on page unload)
+    await fetch("https://fawa.onrender.com/api/accept-terms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+      keepalive: true
+    });
+    console.log("Consent saved successfully");
+  } catch (err) {
+    console.error("Failed to save consent:", err);
   }
 
-  // 3️⃣ Delay redirect slightly to give backend time to receive beacon
-  setTimeout(() => {
-    if (targetUrl) window.location.href = targetUrl;
-  }, 100); // 100ms is enough
+  // 3️⃣ Redirect user after backend request
+  if (targetUrl) window.location.href = targetUrl;
 });
