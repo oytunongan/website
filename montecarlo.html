@@ -39,7 +39,16 @@
             <div class="bg-layer"></div>
 
             <div class="container mt-4 position-relative">
-                <h1 class="mb-4">Monte Carlo Risk Simulation</h1>
+                <section class="about-hero py-3 text-center" style="background: transparent;">
+                    <div class="container text-gold">
+                        <h1>Monte Carlo Risk Simulation Application</h1>
+                        <p class="lead mt-3 text-start">
+                            Processes a risk register in .csv format, which should include Expected Monetary Value and Probability columns in a qualitative format.
+                            Impacts and occurrences are then simulated and quantified using Python, and the results are visualized in a graph. Upload your file to try it out.
+                            If you don’t know how to convert an Excel file to CSV, you can try my converter <a href="/error.html">here.</a>
+                        </p>
+                    </div>
+                </section>
 
                 <input type="file" id="csvFile" accept=".csv" class="form-control mb-3">
                 <button class="btn btn-primary" onclick="runSimulation()">Run Simulation</button>
