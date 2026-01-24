@@ -344,35 +344,41 @@ document.addEventListener("DOMContentLoaded", () => {
 // ACCEPT TERMS AND PRIVACY
 // ==========================
 let targetUrl = null;
-const modal = new bootstrap.Modal(document.getElementById("termsModal"));
+const modalEl = document.getElementById("termsModal");
+const modal = new bootstrap.Modal(modalEl);
 const termsBox = document.getElementById("termsBox");
 const modalContent = document.getElementById("modalContent");
 const checkbox = document.getElementById("acceptTerms");
 const acceptBtn = document.getElementById("acceptBtn");
 
-// Load Terms & Privacy
-async function loadTermsAndPrivacy() {
-  try {
-    const terms = await fetch("/terms.html").then(r => r.text());
-    const privacy = await fetch("/privacy.html").then(r => r.text());
+// Show modal immediately and load policies asynchronously
+modalEl.addEventListener("show.bs.modal", () => {
+  modalContent.innerHTML = "<p>Loading policies...</p>";
+  checkbox.checked = false;
+  checkbox.disabled = true;
+  acceptBtn.disabled = true;
+  termsBox.scrollTop = 0;
 
-    modalContent.innerHTML = `
-      <h3>Terms of Service</h3>
-      ${terms}
-      <hr>
-      <h3>Privacy Policy</h3>
-      ${privacy}
-    `;
-
-    checkbox.checked = false;
-    checkbox.disabled = true;
-    acceptBtn.disabled = true;
-    termsBox.scrollTop = 0;
-  } catch (err) {
-    modalContent.innerHTML = "<p>Failed to load policies. Please try again later.</p>";
-    console.error(err);
-  }
-}
+  // Load Terms
+  fetch("/terms.html").then(r => r.text()).then(terms => {
+    // Load Privacy
+    fetch("/privacy.html").then(r => r.text()).then(privacy => {
+      modalContent.innerHTML = `
+        <h3>Terms of Service</h3>
+        ${terms}
+        <hr>
+        <h3>Privacy Policy</h3>
+        ${privacy}
+      `;
+    }).catch(err => {
+      console.error("Failed to load privacy:", err);
+      modalContent.innerHTML += "<p>Failed to load privacy policy.</p>";
+    });
+  }).catch(err => {
+    console.error("Failed to load terms:", err);
+    modalContent.innerHTML = "<p>Failed to load terms of service.</p>";
+  });
+});
 
 // Show modal if consent not given
 document.querySelectorAll(".learn-more").forEach(link => {
@@ -385,26 +391,26 @@ document.querySelectorAll(".learn-more").forEach(link => {
   });
 });
 
-// Enable checkbox when scrolled to bottom
+// Enable checkbox only when scrolled to bottom
 termsBox.addEventListener("scroll", () => {
-  checkbox.disabled = !(termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5);
+  const atBottom = termsBox.scrollTop + termsBox.clientHeight >= termsBox.scrollHeight - 5;
+  checkbox.disabled = !atBottom;
 });
 
-// Enable Accept button when checkbox checked
+// Enable Accept button when checkbox is checked
 checkbox.addEventListener("change", () => {
   acceptBtn.disabled = !checkbox.checked;
 });
 
-// Accept Terms button click
+// Accept Terms: Optimistic UI + reliable DB write
 acceptBtn.addEventListener("click", async () => {
-  // 1️⃣ Optimistic UI: hide modal and update localStorage
+  // 1️⃣ Optimistic UI
   localStorage.setItem("termsAccepted", "true");
   localStorage.setItem("policyVersion", "1.0");
   modal.hide();
 
   // 2️⃣ Send POST to backend reliably
   try {
-    // Use fetch with keepalive (works even on page unload)
     await fetch("https://fawa.onrender.com/api/accept-terms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
