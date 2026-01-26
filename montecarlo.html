@@ -45,13 +45,18 @@
                         <p class="lead mt-3 text-start">
                             Processes a risk register in .csv format, which should include Expected Monetary Value and Probability columns in a qualitative format.
                             Impacts and occurrences are then simulated and quantified using Python, and the results are visualized in a graph. Upload your file to try it out.
-                            If you don’t know how to convert an Excel file to CSV, you can try my converter <a href="/error.html">here.</a>
+                            If you don’t know how to convert an Excel file to CSV;
+                            <br>
+                            <span>
+                                * Open excel file --> Open the sheet where 'emv' and 'probability' exist --> Click File and Save As --> Select save file type as CSV --> Finish and then upload this file *
+                            </span>
                         </p>
                     </div>
                 </section>
-
-                <input type="file" id="csvFile" accept=".csv" class="form-control mb-3">
-                <button class="btn btn-primary" onclick="runSimulation()">Run Simulation</button>
+                <div class="d-flex flex-column align-items-center mt-1">
+                    <input type="file" id="csvFile" accept=".csv" class="form-control mb-3" style="width: 300px;">
+                    <button class="btn btn-primary" onclick="runSimulation()">Run Simulation</button>
+                </div>
 
                 <div id="error" class="text-danger mt-3"></div>
 

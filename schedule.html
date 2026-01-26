@@ -54,6 +54,10 @@
                     </video>
                 </div>
             </section>
+            <form class="d-flex flex-column align-items-center mt-5" action="http://127.0.0.1:5000/api/optimize-project" method="post" enctype="multipart/form-data">
+                <input class="form-control mb-3" style="width: 300px;" type="file" name="file" accept=".xml" required />
+                <button class="btn btn-primary" type="submit" disabled>Optimize & Download</button>
+            </form>
         </main>
         <footer class="mb-5 small text-center text-muted">
             <p>
