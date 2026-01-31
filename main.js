@@ -425,3 +425,79 @@ acceptBtn.addEventListener("click", async () => {
   // 3️⃣ Redirect user after backend request
   if (targetUrl) window.location.href = targetUrl;
 });
+
+// ==========================
+// O&M
+// ==========================
+async function predict() {
+    const historyFile = document.getElementById("history").files[0];
+    const currentFile = document.getElementById("current").files[0];
+    const rolling = document.getElementById("rolling").checked;
+    const sketch = document.getElementById("sketch").checked;
+    const statusDiv = document.getElementById("status");
+    const plotImg = document.getElementById("plot");
+
+    if (!historyFile || !currentFile) {
+        alert("Please upload both history and current CSV files.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("history", historyFile);
+    formData.append("current", currentFile);
+    formData.append("rolling", rolling);
+    formData.append("sketch", sketch);
+
+    statusDiv.innerHTML = "Processing...";
+    plotImg.style.display = "none";
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/predict-maintenance", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            statusDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
+            return;
+        }
+
+        // Display main failure risk
+        let html = `<h4>Failure Probability: ${(data.failure_probability*100).toFixed(2)}%</h4>`;
+        html += `<strong>Status:</strong> ${data.risk_label}<br><br>`;
+        html += `<p>Baseline risk: ${(data.baseline_risk*100).toFixed(2)}%</p>`;
+        html += `<p>Current risk: ${(data.current_risk*100).toFixed(2)}%</p>`;
+
+        // Display causes
+        if (data.causes.length > 0) {
+            html += "<h5>Failure Drivers:</h5><ul>";
+            data.causes.forEach(c => {
+                html += `<li>❌ ${c.feature} = ${c.value.toFixed(3)} (+${(c.risk_increase*100).toFixed(2)}% risk)</li>`;
+            });
+            html += "</ul>";
+        }
+
+        // Display out-of-range sensors
+        if (data.out_of_range.length > 0) {
+            html += "<h5>⚠️ Out-of-Range Sensors:</h5><ul>";
+            data.out_of_range.forEach(s => {
+                html += `<li>⚠️ ${s.feature} = ${s.value.toFixed(2)} (trained range ${s.min.toFixed(2)} – ${s.max.toFixed(2)})</li>`;
+            });
+            html += "</ul>";
+        }
+
+        statusDiv.innerHTML = html;
+
+        // Display feature importance plot
+        if (data.plot) {
+            plotImg.src = "data:image/png;base64," + data.plot;
+            plotImg.style.display = "block";
+        }
+
+    } catch (err) {
+        console.error(err);
+        statusDiv.innerHTML = `<span class="text-danger">Error: ${err}</span>`;
+    }
+}
