@@ -452,7 +452,7 @@ async function predict() {
     plotImg.style.display = "none";
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/api/predict-maintenance", {
+        const response = await fetch("https://fawa.onrender.com/api/predict-maintenance", {
             method: "POST",
             body: formData
         });
@@ -499,5 +499,66 @@ async function predict() {
     } catch (err) {
         console.error(err);
         statusDiv.innerHTML = `<span class="text-danger">Error: ${err}</span>`;
+    }
+}
+
+// ==========================
+// EQUIPMENT OPTIMIZATION
+// ==========================
+async function optimize() {
+    const fileInput = document.getElementById("excelFile");
+    const statusDiv = document.getElementById("optimizeStatus");
+
+    if (!fileInput.files.length) {
+        statusDiv.innerHTML =
+            `<div class="alert alert-warning">Please upload an Excel file.</div>`;
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    statusDiv.innerHTML = `
+        <div class="progress" style="width:300px;margin:auto">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                 style="width:100%">
+                Processing...
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(
+            "https://fawa.onrender.com/api/equipment-optimize",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || "Optimization failed");
+        }
+
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "equipment_optimization_actions.xlsx";
+        document.body.appendChild(a);
+        a.click();
+
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        statusDiv.innerHTML =
+            `<div class="alert alert-success">Download started ✔</div>`;
+
+    } catch (err) {
+        console.error(err);
+        statusDiv.innerHTML =
+            `<div class="alert alert-danger">${err.message}</div>`;
     }
 }
