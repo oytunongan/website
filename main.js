@@ -290,8 +290,9 @@ document.addEventListener("DOMContentLoaded", () => {
         attributionControl: false
     }).setView([20, 0], 2);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        attribution: "© OpenStreetMap © CARTO"
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
     // Cities you’ve been to
